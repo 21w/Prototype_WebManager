@@ -1,44 +1,53 @@
-//FirebaseAuthの初期化
-function initFirebaseAuth(){
-    //オブザーバーの設定
-    firebase.auth().onAuthStateChanged(function(user){
-        if(user){
-            //ログイン後
-            console.log("ログインしました．");
-            console.log(user.uid);
-        }else{
-            //ログアウト後
-            console.log("それ以外")
-        }
-    })
-}
-
-//FirebaseAuthの初期化を実行
-initFirebaseAuth();
+// Firebaseを利用してFirebaseUIを初期化
+var ui = new firebaseui.auth.AuthUI(firebase.auth());
 
 /*
-*   値の取得
+*   FirebaseUIの設定
 */
-//メールアドレスの取得
-function getEmailAddress(){
-    return document.getElementById("email").value;
-}
+//
+var uiConfig={
+    callbacks: {
+    signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+      // ログイン成功時に実行
+      console.log("ログイン成功");
 
-//パスワードの取得
-function getPassword(){
-    return document.getElementById(password).value;
-}
+      return true;
+    },
+    uiShown: function() {
+      // ウィジットの表示．ローダーの非表示
+      document.getElementById('loader').style.display = 'none';
+    }
+  },
+  //ログイン成功時にリダイレクトするためのURL
+  signInSuccessUrl: '<url-to-redirect-to-on-success>',
+  //提供するログイン方法
+  signInOptions: [
+    firebase.auth.EmailAuthProvider.PROVIDER_ID
+  ]
+};
 
 /*
-*   ボタン処理
+*   FirebaseUIの開始
 */
-//ログイン処理
-loginAction = function(){
-    //値の取得
-    const emailAddress = getEmailAddress();
-    const password = getPassword();
-    //ログイン処理
-    firebase.auth().signInWithEmailAndPassword(emailAddress, password).catch(function(error) {
-        console.log("ログイン出来ませんでした．")
-    });
-}
+ui.start('#firebaseui-auth-container', uiConfig);
+
+/*
+*
+*/
+firebase.auth().onAuthStateChanged(function(user) {
+  if (user) {
+    // User is signed in.
+    console.log("確認")
+    var displayName = user.displayName;
+    var email = user.email;
+    var emailVerified = user.emailVerified;
+    var photoURL = user.photoURL;
+    var isAnonymous = user.isAnonymous;
+    var uid = user.uid;
+    var providerData = user.providerData;
+    // ...
+  } else {
+    // User is signed out.
+    // ...
+  }
+});
